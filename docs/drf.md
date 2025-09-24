@@ -73,5 +73,11 @@ from rest_framework import status // para retorno dos status code
 
 - Cada classe de APIViews devem herdar de APIView
 
+## Generic views
+
+- Conceito importante: para o CRUD, é importante entender o conceito de endpoints de coleção (endpoints gerais como quando algo é escrito ou lido) e endpoints individuais (específicas para instâncias, como por exemplo endpoints com o id de um objeto, para atualizar ou deletar)
+
+- Há generic views para ambos os tipos de endpoints
+
 
 
