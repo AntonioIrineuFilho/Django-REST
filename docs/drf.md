@@ -79,5 +79,73 @@ from rest_framework import status // para retorno dos status code
 
 - Há generic views para ambos os tipos de endpoints
 
+## Viewsets
+
+- Classes que abstraem e unificam os métodos de requisição, de modo que em um único viewset há os métodos para GET, POST, PUT, DELETE, RETRIEVE, etc.
+
+- O roteamento das viewsets são feitas também de forma abstraída e automática por meio de routers
+
+- No final, um viewset funciona como um apiview, só que com todos os métodos unificados por meio de ações(list, retrieve, create, update, partial_update, destroy) e com o roteamento sendo feito de forma abstraida e automática pelo router
+
+```Python
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_or_404
+from .models import Modelo
+from .serializers import ModeloSerializer
+
+class ModeloViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        query_set = Modelo.objects.all()
+        serializer = ModeloSerializer(queryset, many=true)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk):
+        modelo_objeto = get_or_404(Modelo, pk=pk)
+        serializer = ModeloSerializer(modelo_objeto)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        modelo_objeto = get_or_404(Modelo, pk=pk)
+        serializer = ModeloSerializer(instance=modelo_objeto, data=request.data)
+        if (serializer.is_valid()):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+```
+
+### Model Viewsets
+
+- Realiza tudo que o viewset faz mas de forma automática, apenas definindo o query set e o serializer
+
+- Ou seja, todas as ações das requisições HTTP o model viewset realiza sozinho
+
+```Python
+from rest_framework import viewsets
+from .models import Modelo
+from .serializers import ModeloSerializer
+
+class ModeloViewSet(viewsets.ModelViewSet):
+    query_set = Modelo.objects.all()
+    serializer_class = ModeloSerializer
+```
+
+### Routers
+
+- Gerador de endpoints automático do DRF, define as rotas por meio de uma palavra-chave definida e por meio de uma lógica de endpoints
+
+- Se a requisição for para um objeto individual, gera um endpoint individual (/palavra-chave/pk)
+
+- Se for uma requisição que não dependa de um objeto específico (create/list), ele gera um endpoint coleção (/palvra-chave/)
+
+```Python
+from rest_framework.routers import DefaultRouter
+router = DefaultRouter()
+router.register(r"endpoint-coleção", MinhaViewSet, basename="endpoint-coleção")
+urlpatterns = router.urls
+```
+
 
 
