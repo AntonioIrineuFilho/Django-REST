@@ -14,6 +14,11 @@
 
 - Settings.py: 
 ```
+INSTALLED_APPS = [
+    "rest_framework",
+    "rest_framework.authtoken"
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -28,6 +33,8 @@ REST_FRAMEWORK = {
 - ```from rest_framework.permissions import IsAuthenticated```
 - ```from rest_framework.authtoken.models import Token```
 
+- Observação: o authtoken precisa ser adicionado aos installed apps e migrado
+
 ## Token
 
 - ```token = Token.objects.create(user=user)`` Criar o token no signup
@@ -41,3 +48,5 @@ REST_FRAMEWORK = {
 - ```User.objects.filter(username=username).first()``` retorna o objeto com o arg de comparação, para validar senha, por exemplo, porque assim retorna None ao invés de 404
 
 - Ao devolver os dados do usuário, não fazer serializer.data, pois só está retornando os próprios dados de envio no processo de signup e não o objeto criado. O correto é pegar o objeto e serializar ```UserSerializer(user).data```
+
+- Utilizar serializers diferentes para o signup e login, pois o signup usa model serializer que valida constraints únicas ao automaticamente(como o username, mesmo que o intuito seja apenas validar, não criar, o que gera um erro de user duplicado), então o ideal é não utilizar model serializer no serializer de login e sim um serializer simples

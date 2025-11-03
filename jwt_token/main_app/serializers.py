@@ -7,3 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
         write_only_fields = ("password")
 
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+

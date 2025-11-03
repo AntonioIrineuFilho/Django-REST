@@ -6,7 +6,7 @@ from rest_framework.authentication import TokenAuthentication, SessionAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserLoginSerializer
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
@@ -14,13 +14,13 @@ class UserViewSet(ModelViewSet):
 
     @action(detail=False, methods=["POST"])
     def login(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserLoginSerializer(data=request.data)
         if (serializer.is_valid()):
             username = serializer.validated_data.get("username")
             password = serializer.validated_data.get("password")
             user = User.objects.filter(username=username).first()
             if (user):
-                if (user.check_password(password=password)):
+                if (user.check_password(password)):
                     token, created = Token.objects.get_or_create(user=user)
                     return Response({"token": token.key, "user": UserSerializer(user).data})
             return Response({"message": "Credenciais inválidas"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -50,8 +50,9 @@ class UserViewSet(ModelViewSet):
             return Response({"token": token.key, "user": UserSerializer(user).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    
-            
+    @authentication_classes([TokenAuthentication])
+    @permission_classes([IsAuthenticated])
 
-
-            
+    @action(detail=False, methods=["GET"])
+    def test_token(self, request):
+        return Response(f"passou para {request.user}")
