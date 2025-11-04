@@ -41,6 +41,10 @@ REST_FRAMEWORK = {
 
 - ```token, created = Token.objects.get_or_create(user=user)``` Pegar ou criar (em caso de expirar) o token no login
 
+- ```authentication_classes = [TokenAuthentication]```-> Define que o token deve ser passado no header(Authorization: Token <token>)
+    
+- ```permission_classes = [IsAuthenticated]``` -> Define que é necessário estar autenticado para função ser chamada
+
 ## Insights
 
 - Não utilizar o **get_objects_or_404**, pois não retorna None e sim um exception 404, logo, para validações de username ou email já existentes o ideal é utilizar ```User.objects.filter(username=username).exists()```
