@@ -6,7 +6,9 @@ from rest_framework.authentication import TokenAuthentication, SessionAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-from .serializers import UserSerializer, UserLoginSerializer
+from .models import Projeto, Coluna, Etiqueta, Tarefa, Comentario
+from .serializers import UserSerializer, UserLoginSerializer, ProjetoSerializer, ColunaSerializer, EtiquetaSerializer, TarefaSerializer, ComentarioSerializer
+
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
@@ -50,9 +52,48 @@ class UserViewSet(ModelViewSet):
             return Response({"token": token.key, "user": UserSerializer(user).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @authentication_classes([TokenAuthentication])
-    @permission_classes([IsAuthenticated])
+    #@authentication_classes([TokenAuthentication])
+    #@permission_classes([IsAuthenticated])
 
-    @action(detail=False, methods=["GET"])
-    def test_token(self, request):
-        return Response(f"passou para {request.user}")
+    #@action(detail=False, methods=["GET"])
+    #def test_token(self, request):
+        #return Response(f"passou para {request.user}")
+
+class ProjetoViewSet(ModelViewSet):
+    queryset = Projeto.objects.all()
+    serializer_class = ProjetoSerializer
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=["POST"])
+    def create_project(self, request):
+        serializer = ProjetoSerializer(data=request.data)
+        if (serializer.is_valid()):
+            project = serializer.save()
+            return Response(ProjetoSerializer(project).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=["GET"])
+    def list_tasks(self, request, pk=None):
+        tasks = Tarefa.objects.filter(coluna__projeto_id=pk)
+        return Response(TarefaSerializer(tasks, many=True).data, status=status.HTTP_200_OK)
+    
+class TarefaViewSet(ModelViewSet):
+    queryset = Tarefa.objects.all()
+    serializer_class = TarefaSerializer
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=["POST"])
+    def create_task(self, request):
+        serializer = TarefaSerializer(data=request.data)
+        if (serializer.is_valid()):
+            task = serializer.save()
+            return Response(TarefaSerializer(task).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+            
+
