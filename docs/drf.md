@@ -76,7 +76,7 @@ class UserLoginSerializer(serializers.Serializer):
 
 - ```metodo = serializers.SerializerMethodField()```-> Cria a expectativa da existência de um método com o padrão *get_<variavel>*, nesse caso, um método chamado get_metodo(), sendo que a variável será um campo do fields e possuirá um valor que pode ser manipulado com a chamada de obj no método: ```def get_metodo(self, obj)```
 
-- ```model_id = serializers.PrimaryKeyRelatedField(queryset=Model.objects.all(), source="model")``` -> Pega um campo do fields que seja um ID para uma FK, recupera o objeto(ou objetos, em caso de many=True) e valida retornando uma mensagem de erro se o ID foi inválido
+- ```chave_estrangeira_que_veio_do_fields = serializers.PrimaryKeyRelatedField(queryset=Model.objects.all(), source="nome da FK dentro da tabela")``` -> Pega um campo do fields que seja um ID para uma FK, recupera o objeto(ou objetos, em caso de many=True) e valida retornando uma mensagem de erro se o ID foi inválido
 
 ## APIViews
 
