@@ -42,6 +42,28 @@ urlpatterns = [
 
 - Os campos a serem mapeados pelo serializer são identificados por meio do atributo name no frontend, semelhante ao Django tradicional 
 
+### Serializer x Service
+
+- Uma classe serializer e uma classe de serviço devem compartilhar responsabilidades
+
+- Por exemplo, quando não há regras de negócio complexas os métodos podem ficar no serializer
+
+- No entanto, quando houver o tratamento de regras de negócio mais complexas, o serializer ficaria responsável apenas pela validação dos dados, enquanto o service lidaria com a regra de negócio e a manipulação do banco de dados
+
+### Serializer simples
+
+- ```serializers.Serializer```
+
+- Apenas serialização, sem as validações do ModelSerializer
+
+- Os campos são instanciados como nos models
+
+```Python
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField
+    password = serializers.CharField(write_only=True)
+```
+
 ### Métodos nativos
 
 - O Model Serializer possui diversos métodos nativos
@@ -52,13 +74,9 @@ urlpatterns = [
 
 - ```create() / update()`` -> Cria(POST) ou atualiza(PUT) objetos seguindo um fluxo padrão(podem ser reescritos no serializer se necessário)
 
-### Serializer x Service
+- ```metodo = serializers.SerializerMethodField()```-> Cria a expectativa da existência de um método com o padrão *get_<variavel>*, nesse caso, um método chamado get_metodo(), sendo que a variável será um campo do fields e possuirá um valor que pode ser manipulado com a chamada de obj no método: ```def get_metodo(self, obj)```
 
-- Uma classe serializer e uma classe de serviço devem compartilhar responsabilidades
-
-- Por exemplo, quando não há regras de negócio complexas os métodos podem ficar no serializer
-
-- No entanto, quando houver o tratamento de regras de negócio mais complexas, o serializer ficaria responsável apenas pela validação dos dados, enquanto o service lidaria com a regra de negócio e a manipulação do banco de dados
+- ```model_id = serializers.PrimaryKeyRelatedField(queryset=Model.objects.all(), source="model")``` -> Pega um campo do fields que seja um ID para uma FK, recupera o objeto(ou objetos, em caso de many=True) e valida retornando uma mensagem de erro se o ID foi inválido
 
 ## APIViews
 
@@ -147,5 +165,25 @@ router.register(r"endpoint-coleção", MinhaViewSet, basename="endpoint-coleçã
 urlpatterns = router.urls
 ```
 
+### Actions
 
+- Decoradores para métodos personalizados dentro do ModelViewSet
+
+- ```@action(detail=Bool, methods=['METHOD'])```
+
+- o detail recebe um booleano para indicar se deve passar o PK no endpoint e o methods indica com quais métodos HTTP esse método pode ser invocado
+
+- o action gera um endpoint personalizado para o endpoint principal da classe ao qual esse método pertence:
+
+```Python
+class Produtos(ModelViewSet):
+    queryset = Produtos.objects.all()
+    serializer_class = ProdutosSerializer
+
+    @action(detail=True, methods=["GET"])
+    def ver_produto(self, request):
+    ...
+
+# endpoint final = produtos/pk/ver_produto
+```
 
